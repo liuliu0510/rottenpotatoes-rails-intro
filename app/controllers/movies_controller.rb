@@ -48,8 +48,7 @@ def index
    end
   
    if @ratings and @sort_by
-     @movies = Movie.where(:rating => @ratings.keys)
-     #@movies = Movie.where(:rating => @ratings.keys).find(:all, :order => @sort_by)
+     @movies = Movie.where(:rating => @ratings.keys).order("#{params[:sort_by]} ASC")  # under each rating category, like G, movies can also be sorted by title or release_date
      elsif @ratings
       @movies = Movie.where(:rating => @ratings.keys)
     elsif @sort_by
