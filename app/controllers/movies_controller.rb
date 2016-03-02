@@ -10,9 +10,60 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def index
+def index
    # @movies = Movie.find(:all, :order => (params[:sort_by]))
+  @all_ratings=Movie.all_ratings
+  redirect=false 
   
+  logger.debug(session.inspect)
+  
+   if params[:sort_by]
+      @sort_by = params[:sort_by]
+      session[:sort_by]=params[:sort_by]
+    elsif session[:sort_by]
+       @sort_by = session[:sort_by]
+       redirect=true
+    else 
+       @sort_by=nil
+   end
+  
+   if params[:commit] == "Refresh" and params[:ratings].nil?
+     @ratings=nil
+     session[:ratings]=nil
+     @sort_by=nil
+     session[:sort_by]=nil
+    elsif params[:ratings]
+     @ratings=params[:ratings]
+     session[:ratings]=params[:ratings]
+    elsif session[:ratings]
+     @ratings=session[:ratings]
+     redirect=true
+    else
+     @ratings=nil
+   end
+  
+   if redirect 
+     flash.keep
+     redirect_to movies_path :sort_by=>@sort_by, :ratings=>@ratings
+   end
+  
+   if @ratings and @sort_by
+     @movies = Movie.where(:rating => @ratings.keys)
+     #@movies = Movie.where(:rating => @ratings.keys).find(:all, :order => @sort_by)
+     elsif @ratings
+      @movies = Movie.where(:rating => @ratings.keys)
+    elsif @sort_by
+      @movies = Movie.order("#{params[:sort_by]} ASC")
+    else
+      @movies= Movie.all
+   end
+ 
+  if !@ratings 
+    @ratings = Hash.new
+  end
+end
+  
+=begin  
     @sort_column = params[:sort_by]
 
     @movies= params[:sort_by]==nil ?  Movie.all : Movie.order("#{params[:sort_by]} ASC")
@@ -29,7 +80,7 @@ class MoviesController < ApplicationController
     #@title_class=sort_column=="title" ? "hilite":""
    # @release_date_class=sort_column=="release_date" ? "hilite":""
   end
-
+=end
   def new
     # default: render 'new' template
   end
