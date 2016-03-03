@@ -61,7 +61,8 @@ def index
     @ratings = Hash.new
   end
 end
-  
+
+
 =begin  
     @sort_column = params[:sort_by]
 
